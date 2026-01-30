@@ -7,11 +7,11 @@
   Как выглядит `.env`:
 
 ```
-OPEN_AI_API_KEY=sk-your-openai-api-key
+OPEN_AI_API_KEY='sk-your-openai-api-key'
 ```
 
 
-Если `.env` отсутствует - нужно создать его в папке с docker-compose
+Если `.env` отсутствует - нужно создать его в одной директории с docker-compose
 
 ## Запуск
 
