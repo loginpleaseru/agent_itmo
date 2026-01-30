@@ -2,11 +2,12 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict
+from pathlib import Path
 import uuid
 from config_itmo import OPEN_AI_API_KEY
 from langchain_openai import ChatOpenAI
 from req_resp_itmo import Request_class
-from agent_itmo import interview_graph, save_single_interview_log, INTERVIEW_LOGS_DIR
+from agent_itmo import interview_graph
 
 app = FastAPI(title="AI Interview System")
 
@@ -111,15 +112,20 @@ def submit_answer(req: AnswerRequest):
     
 
     if result.get('is_finish', 'no').lower().startswith('y'):
- 
-        log_path = str(INTERVIEW_LOGS_DIR / f"interview_log_{req.session_id}.json")
-        save_single_interview_log(result, log_path)
-        
+
         report = result['final_report']
+
+        # Путь к JSON-логу, который сохранил граф (final_report_agent)
+        log_file_path = result.get('log_file_path')
+        if log_file_path:
+            log_name = Path(log_file_path).name
+            log_file = f"interview_logs/{log_name}"
+        else:
+            log_file = None
         
         return {
             'finished': True,
-            'log_file': f"interview_logs/interview_log_{req.session_id}.json",
+            'log_file': log_file,
             'verdict': report.verdict,
             'hard_skills': report.hard_skills_analysis,
             'soft_skills': report.soft_skills_analysis,

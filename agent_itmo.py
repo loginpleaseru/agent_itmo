@@ -481,11 +481,13 @@ def final_report_agent(state: Dict[str, Any]) -> Dict[str, Any]:
         'final_report': final_report
     }
     
-   
+    # Логируем интервью 
     log_name = f"interview_log_{state['first_request'].name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-    save_single_interview_log(updated_state, log_path=str(INTERVIEW_LOGS_DIR / log_name))
+    log_path = INTERVIEW_LOGS_DIR / log_name
+    save_single_interview_log(updated_state, log_path=str(log_path))
     
-    return updated_state
+    # Сохраняем путь к файлу в состоянии, чтобы FastAPI-слой мог вернуть его в ответе
+    return {**updated_state, 'log_file_path': str(log_path)}
 
 
 def create_interview_graph():
