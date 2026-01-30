@@ -139,6 +139,9 @@ def submit_answer(req: AnswerRequest):
             'finished': True,
             'log_file': log_file,
             'verdict': report.verdict,
+            'grade': report.grade,
+            'hiring_recommendation': report.hiring_recommendation,
+            'confidence_score': report.confidence_score,
             'hard_skills': report.hard_skills_analysis,
             'soft_skills': report.soft_skills_analysis,
             'roadmap': report.personal_roadmap

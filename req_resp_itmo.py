@@ -38,11 +38,21 @@ class Response_class(BaseModel): #мб удалить
     final_feedback : str
 
 class FinalReport(BaseModel):
+    """Финальный отчёт интервью. Все поля — кратко, по делу."""
 
-    verdict: str  
-    hard_skills_analysis: str
-    soft_skills_analysis: str  
-    personal_roadmap: List[str]  
+    verdict: str = Field(description="Краткий итоговый вердикт, 1-2 предложения")
+    grade: Literal["Junior", "Middle", "Senior"] = Field(description="Оценка уровня кандидата по ответам")
+    hiring_recommendation: Literal["Hire", "No Hire", "Strong Hire"] = Field(description="Рекомендация по найму")
+    confidence_score: int = Field(ge=0, le=100, description="Уверенность системы в оценке, 0-100%")
+    hard_skills_analysis: str = Field(
+        description="Technical Review: ✅ Confirmed Skills (темы с точными ответами); ❌ Knowledge Gaps (темы с ошибками/«не знаю» + правильный ответ). Кратко, списком или таблицей."
+    )
+    soft_skills_analysis: str = Field(
+        description="Clarity (понятность изложения), Honesty (честность/признание незнания), Engagement (встречные вопросы). Кратко."
+    )
+    personal_roadmap: List[str] = Field(
+        description="Конкретные темы/технологии для подтягивания на основе пробелов, 3-7 пунктов"
+    )  
 
 
 class LogTurn(BaseModel):

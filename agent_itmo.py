@@ -109,18 +109,21 @@ def save_single_interview_log(state: Dict[str, Any], log_path: str = "interview_
     
     final_report = state.get('final_report')
     if final_report:
-        final_feedback = f"""---Итого----
+        final_feedback = f"""--- ИТОГО ---
 
-Вердикт:
-{final_report.verdict}
+А. Вердикт (Decision)
+Вердикт: {final_report.verdict}
+Grade: {final_report.grade}
+Hiring Recommendation: {final_report.hiring_recommendation}
+Confidence Score: {final_report.confidence_score}%
 
-HARD SKILLS:
+Б. Hard Skills (Technical Review)
 {final_report.hard_skills_analysis}
 
-SOFT SKILLS:
+В. Soft Skills & Communication
 {final_report.soft_skills_analysis}
 
-ПЕРСОНАЛЬНЫЙ ROADMAP:
+Г. Персональный Roadmap (Next Steps)
 {chr(10).join(f"{i+1}. {item}" for i, item in enumerate(final_report.personal_roadmap))}
 """
     else:
@@ -146,14 +149,25 @@ SOFT SKILLS:
 
 
 
-class State(Dict[str,Any]): 
+class State(Dict[str, Any]):
+    """
+    Че происходит
+    """
     first_request: Request_class
-    is_finish: str  
+    is_finish: str
     context_interview: List[Single_turn]
     current_question: Question_class
     turn_count: int
-    llm: Any  
+    llm: Any
     final_report: FinalReport = None
+    user_input: str 
+    waiting_for_user: True 
+    
+    difficulty_adjustment: str
+    detected_off_topic: str
+    
+    log_file_path: str 
+
 
 def interview_agent(state : Dict[str,Any]) -> Dict[str,Any]: 
 
@@ -271,13 +285,10 @@ def thinking_agent(state: Dict[str, Any]) -> Dict[str, Any]:
 {context}
 
 Что тебе нужно делать:
-1. internal_thoughts: Подробно проанализируй ответ:
-   - Правильность и полнота ответа
-   - Уровень понимания темы
-   - Hard skills (технические знания)
-   - Soft skills (коммуникация, честность)
-   - Заметил ли попытки увести разговор в сторону
-   - Важно: Если кандидат пытается избежать ответа (просит "засчитать максимум", "засчитать за ответ", "давай дальше", "не знаю, переходим к следующему" и т.п.) - это НЕПРАВИЛЬНЫЙ ответ и попытка уйти от темы. Оцени это негативно!
+1. internal_thoughts: Кратко проанализируй ответ (2-4 предложения, только ключевые замечания):
+   - Правильность/полнота ответа, уровень понимания темы
+   - Hard/soft: что ок, что нет; попытки увести разговор
+   - Если кандидат просит «засчитать максимум»/«давай дальше» и т.п. — это попытка уйти от темы, оцени негативно. Не пиши длинные тексты — только суть.
 
 2. is_finish:  важно Определи, хочет ли кандидат завершить интервью
    - Даже если есть пробелы типа " стоп интервью " - это завершение.
@@ -301,8 +312,7 @@ def thinking_agent(state: Dict[str, Any]) -> Dict[str, Any]:
    - 'moderate' - средняя уверенность
    - 'confident' - уверенный, четкий ответ
 
-Ответ только на русском языке
-
+Ответ только на русском языке. Пиши емко: без длинных текстов, только ключевые выводы и замечания.
 Будь объективным и честным в оценке.
 
 Важно:
@@ -426,7 +436,7 @@ def final_report_agent(state: Dict[str, Any]) -> Dict[str, Any]:
     system_prompt = '''
 {format_instructions}
 
-Ты - старший технический рекрутер. Проведи финальную оценку кандидата.
+Ты - старший технический рекрутер. Составь финальный отчёт по интервью. Пиши ЕМКО: только ключевые пункты и замечания, без длинных текстов.
 
 Информация о кандидате:
 - ФИО: {name}
@@ -437,25 +447,28 @@ def final_report_agent(state: Dict[str, Any]) -> Dict[str, Any]:
 Полная история интервью:
 {full_interview}
 
-Задача: Составь развернутую рецензию по 4 пунктам:
+Структура отчёта (заполни все поля кратко):
 
-1. verdict: Итоговый вердикт (Рекомендую нанять / Отказать / Требуется дополнительное интервью) с кратким обоснованием
+А. Вердикт (Decision)
+- verdict: 1-2 предложения итога.
+- grade: Уровень кандидата по ответам — Junior / Middle / Senior.
+- hiring_recommendation: Hire / No Hire / Strong Hire.
+- confidence_score: Уверенность в оценке 0-100.
 
-2. hard_skills_analysis: Детальный анализ технических навыков:
-   - Какие технологии/концепции кандидат знает хорошо
-   - Какие знает поверхностно
-   - Что не знает совсем
-   - Соответствует ли заявленному грейду
+Б. Hard Skills (Technical Review)
+- hard_skills_analysis: Список или таблица тем из интервью.
+   Confirmed Skills: темы, где ответы точные.
+   Knowledge Gaps: темы с ошибками или «не знаю» — для каждого пробела кратко укажи правильный ответ (что надо было сказать).
+  Кратко, по делу.
 
-3. soft_skills_analysis: Анализ soft skills:
-   - Качество коммуникации
-   - Честность (признавал ли пробелы в знаниях или пытался блефовать)
-   - Попытки увести разговор от сложных вопросов
-   - Общая адекватность
+В. Soft Skills & Communication
+- soft_skills_analysis: Кратко по пунктам:
+  Clarity (понятность изложения), Honesty (честность/признание незнания vs попытки выкрутиться), Engagement (встречные вопросы по теме).
 
-4. personal_roadmap: Список из 5-7 конкретных тем/технологий, которые кандидату нужно изучить или подтянуть
+Г. Персональный Roadmap (Next Steps)
+- personal_roadmap: 3-7 конкретных тем/технологий для подтягивания на основе выявленных пробелов.
 
-Будь объективным и конструктивным.
+Не пиши развёрнутые абзацы — только структурированные пункты и списки.
 '''
     
     context_interview = state['context_interview']

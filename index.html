@@ -173,6 +173,7 @@
             border-radius: 8px;
             line-height: 1.6;
             color: #333;
+            white-space: pre-wrap;
         }
 
         .final-report-section ul {
@@ -289,19 +290,20 @@
             <div id="finalReport" class="final-report hidden">
                 <h3>✅ Интервью завершено!</h3>
                 <div class="final-report-section">
-                    <h4>Вердикт:</h4>
+                    <h4>А. Вердикт (Decision)</h4>
                     <p id="verdict"></p>
+                    <p><strong>Grade:</strong> <span id="reportGrade"></span> | <strong>Hiring Recommendation:</strong> <span id="hiringRecommendation"></span> | <strong>Confidence Score:</strong> <span id="confidenceScore"></span>%</p>
                 </div>
                 <div class="final-report-section">
-                    <h4>Hard Skills:</h4>
+                    <h4>Б. Hard Skills (Technical Review)</h4>
                     <p id="hardSkills"></p>
                 </div>
                 <div class="final-report-section">
-                    <h4>Soft Skills:</h4>
+                    <h4>В. Soft Skills & Communication</h4>
                     <p id="softSkills"></p>
                 </div>
                 <div class="final-report-section">
-                    <h4>Персональный Roadmap:</h4>
+                    <h4>Г. Персональный Roadmap (Next Steps)</h4>
                     <ul id="roadmap"></ul>
                 </div>
                 <div class="final-report-section">
@@ -415,9 +417,12 @@
                     document.getElementById('questionSection').classList.add('hidden');
                     document.getElementById('finalReport').classList.remove('hidden');
                     
-                    document.getElementById('verdict').textContent = data.verdict;
-                    document.getElementById('hardSkills').textContent = data.hard_skills;
-                    document.getElementById('softSkills').textContent = data.soft_skills;
+                    document.getElementById('verdict').textContent = data.verdict || '';
+                    document.getElementById('reportGrade').textContent = data.grade || '—';
+                    document.getElementById('hiringRecommendation').textContent = data.hiring_recommendation || '—';
+                    document.getElementById('confidenceScore').textContent = data.confidence_score != null ? data.confidence_score : '—';
+                    document.getElementById('hardSkills').textContent = data.hard_skills || '';
+                    document.getElementById('softSkills').textContent = data.soft_skills || '';
                     
                     const roadmapList = document.getElementById('roadmap');
                     roadmapList.innerHTML = '';
