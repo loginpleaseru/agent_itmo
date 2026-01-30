@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    container_name: agent_itmo
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+      - ./interview_logs:/app/interview_logs
+    environment:
+      - OPEN_AI_API_KEY=${OPEN_AI_API_KEY:-}
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "15"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
