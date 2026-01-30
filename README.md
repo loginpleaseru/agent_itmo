@@ -1,5 +1,7 @@
 # Запуск через Docker Compose
 
+## Примеры ответа и всех логов есть в папке interview_logs/
+
 ## Требования
 
 - Docker и Docker Compose установлены на компе/ноуте
