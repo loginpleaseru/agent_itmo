@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-# Папка для JSON-логов интервью (рабочая директория проекта)
+# Папка для json логов интервью 
 INTERVIEW_LOGS_DIR = Path(__file__).resolve().parent / "interview_logs"
 
 from req_resp_itmo import Request_class, Response_class, Single_turn, Question_class, FinalReport, ThinkingAgentResponse, LogTurn, InterviewLog, StopIntentResponse
