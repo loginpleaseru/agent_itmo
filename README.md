@@ -27,8 +27,9 @@ docker compose up --build
 
 Сервис будет доступен по адресу: **http://localhost:8000**
 
+- **Frontend (веб-интерфейс):** http://localhost:8000/ - откройте в браузере для удобного взаимодействия с агентом
 - Документация API: http://localhost:8000/docs  
-- Корневой маршрут: http://localhost:8000/
+- Корневой маршрут (JSON): http://localhost:8000/
 
 ## Остановка
 
@@ -36,15 +37,29 @@ docker compose up --build
 docker compose down
 ```
 
-## Проверка работы
+## Использование
+
+### Через веб-интерфейс (рекомендуется)
+
+1. Откройте в браузере: **http://localhost:8000/**
+2. Заполните форму:
+   - ФИО кандидата
+   - Позиция (например, "Python Developer")
+   - Грейд (Junior/Middle/Senior)
+   - Опыт работы
+3. Нажмите "Начать интервью"
+4. Отвечайте на вопросы агента в текстовом поле
+5. После завершения интервью вы увидите финальный отчёт с вердиктом, оценкой hard/soft skills и roadmap
+
+### Через API (curl)
 
 ```bash
-# Старт интервью. Первый запрос должен выглядеть вот так:
+# Старт интервью
 curl -X POST http://localhost:8000/start \
   -H "Content-Type: application/json" \
   -d '{"name":"Иван","position":"Python Dev","grade":"Junior","experience":"3 месяца"}'
 
-# Ответ на вопрос (подставьте свой session_id из ответа, который получили после отправки первого запроса!!!) Все ваши ответы в интервью будут выглядеть именно так:
+# Ответ на вопрос (подставьте свой session_id из ответа первого запроса)
 curl -X POST http://localhost:8000/answer \
   -H "Content-Type: application/json" \
   -d '{"session_id":"<session_id>","answer":"мой ответ"}'

@@ -1,5 +1,8 @@
 
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict
 from pathlib import Path
@@ -10,6 +13,15 @@ from req_resp_itmo import Request_class
 from agent_itmo import interview_graph
 
 app = FastAPI(title="AI Interview System")
+
+# CORS для разрешения запросов с frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # В продакшене укажите конкретные домены
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 #сесси тут держим
 sessions: Dict[str, Dict] = {}
@@ -140,8 +152,16 @@ def submit_answer(req: AnswerRequest):
     }
 
 
+# Раздача статических файлов (frontend)
+static_dir = Path(__file__).parent
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
 @app.get("/")
 def root():
+    """Главная страница - возвращает frontend"""
+    index_path = static_dir / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path)
     return {
         'message': 'AI Interview System',
         'endpoints': {

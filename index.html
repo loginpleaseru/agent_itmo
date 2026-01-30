@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .question-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .answer-section {
+            margin-top: 20px;
+        }
+
+        .final-report {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .final-report h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+
+        .final-report-section {
+            margin-bottom: 20px;
+        }
+
+        .final-report-section h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+            margin-top: 15px;
+        }
+
+        .final-report-section p,
+        .final-report-section ul {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .final-report-section ul {
+            list-style-position: inside;
+        }
+
+        .final-report-section li {
+            margin-bottom: 8px;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+        }
+
+        .info {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #1565c0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .session-info {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ff9800;
+            font-size: 14px;
+        }
+
+        .session-info strong {
+            color: #e65100;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Interview Agent</h1>
+            <p>Автоматизированное техническое собеседование</p>
+        </div>
+
+        <div class="content">
+            <!-- Форма начала интервью -->
+            <div id="startForm" class="form-section">
+                <h2>Начать интервью</h2>
+                <form id="startInterviewForm">
+                    <div class="form-group">
+                        <label for="name">ФИО кандидата:</label>
+                        <input type="text" id="name" name="name" required placeholder="Иван Иванов">
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Позиция:</label>
+                        <input type="text" id="position" name="position" required placeholder="Python Developer">
+                    </div>
+                    <div class="form-group">
+                        <label for="grade">Грейд:</label>
+                        <input type="text" id="grade" name="grade" required placeholder="Junior / Middle / Senior">
+                    </div>
+                    <div class="form-group">
+                        <label for="experience">Опыт работы:</label>
+                        <textarea id="experience" name="experience" required placeholder="Опишите ваш опыт работы, проекты, технологии..."></textarea>
+                    </div>
+                    <button type="submit">Начать интервью</button>
+                </form>
+            </div>
+
+            <!-- Информация о сессии -->
+            <div id="sessionInfo" class="session-info hidden">
+                <strong>Сессия:</strong> <span id="sessionId"></span> | 
+                <strong>Раунд:</strong> <span id="turnId">1</span>
+            </div>
+
+            <!-- Секция вопроса -->
+            <div id="questionSection" class="question-section hidden">
+                <h3>❓ Вопрос интервьюера</h3>
+                <div id="questionText" class="question-text"></div>
+                
+                <div class="answer-section">
+                    <form id="answerForm">
+                        <div class="form-group">
+                            <label for="answer">Ваш ответ:</label>
+                            <textarea id="answer" name="answer" required placeholder="Введите ваш ответ здесь..."></textarea>
+                        </div>
+                        <button type="submit">Отправить ответ</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Сообщения об ошибках -->
+            <div id="errorMessage" class="error hidden"></div>
+
+            <!-- Информационные сообщения -->
+            <div id="infoMessage" class="info hidden"></div>
+
+            <!-- Финальный отчёт -->
+            <div id="finalReport" class="final-report hidden">
+                <h3>✅ Интервью завершено!</h3>
+                <div class="final-report-section">
+                    <h4>Вердикт:</h4>
+                    <p id="verdict"></p>
+                </div>
+                <div class="final-report-section">
+                    <h4>Hard Skills:</h4>
+                    <p id="hardSkills"></p>
+                </div>
+                <div class="final-report-section">
+                    <h4>Soft Skills:</h4>
+                    <p id="softSkills"></p>
+                </div>
+                <div class="final-report-section">
+                    <h4>Персональный Roadmap:</h4>
+                    <ul id="roadmap"></ul>
+                </div>
+                <div class="final-report-section">
+                    <p><strong>Лог сохранён в:</strong> <span id="logFile"></span></p>
+                </div>
+                <button onclick="location.reload()" style="margin-top: 20px;">Начать новое интервью</button>
+            </div>
+
+            <!-- Индикатор загрузки -->
+            <div id="loading" class="loading hidden">
+                <p>⏳ Обработка запроса...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+        let currentSessionId = null;
+        let currentTurnId = 1;
+
+        // Обработка начала интервью
+        document.getElementById('startInterviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                position: document.getElementById('position').value,
+                grade: document.getElementById('grade').value,
+                experience: document.getElementById('experience').value
+            };
+
+            showLoading(true);
+            hideError();
+            hideInfo();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Ошибка при начале интервью');
+                }
+
+                currentSessionId = data.session_id;
+                currentTurnId = data.turn_id;
+
+                // Скрываем форму начала, показываем вопрос
+                document.getElementById('startForm').classList.add('hidden');
+                document.getElementById('sessionInfo').classList.remove('hidden');
+                document.getElementById('questionSection').classList.remove('hidden');
+                
+                document.getElementById('sessionId').textContent = currentSessionId;
+                document.getElementById('turnId').textContent = currentTurnId;
+                document.getElementById('questionText').textContent = data.question;
+                document.getElementById('answer').value = '';
+
+            } catch (error) {
+                showError('Ошибка: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Обработка отправки ответа
+        document.getElementById('answerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentSessionId) {
+                showError('Сессия не найдена. Начните новое интервью.');
+                return;
+            }
+
+            const answer = document.getElementById('answer').value.trim();
+
+            if (!answer) {
+                showError('Пожалуйста, введите ответ.');
+                return;
+            }
+
+            showLoading(true);
+            hideError();
+            hideInfo();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/answer`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        answer: answer
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Ошибка при отправке ответа');
+                }
+
+                if (data.finished) {
+                    // Интервью завершено - показываем финальный отчёт
+                    document.getElementById('questionSection').classList.add('hidden');
+                    document.getElementById('finalReport').classList.remove('hidden');
+                    
+                    document.getElementById('verdict').textContent = data.verdict;
+                    document.getElementById('hardSkills').textContent = data.hard_skills;
+                    document.getElementById('softSkills').textContent = data.soft_skills;
+                    
+                    const roadmapList = document.getElementById('roadmap');
+                    roadmapList.innerHTML = '';
+                    if (data.roadmap && Array.isArray(data.roadmap)) {
+                        data.roadmap.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = item;
+                            roadmapList.appendChild(li);
+                        });
+                    }
+                    
+                    document.getElementById('logFile').textContent = data.log_file || 'не указан';
+                } else {
+                    // Продолжаем интервью - показываем следующий вопрос
+                    currentTurnId = data.turn_id;
+                    document.getElementById('turnId').textContent = currentTurnId;
+                    document.getElementById('questionText').textContent = data.question;
+                    document.getElementById('answer').value = '';
+                    document.getElementById('answer').focus();
+                }
+
+            } catch (error) {
+                showError('Ошибка: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Вспомогательные функции
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        function showInfo(message) {
+            const infoDiv = document.getElementById('infoMessage');
+            infoDiv.textContent = message;
+            infoDiv.classList.remove('hidden');
+        }
+
+        function hideInfo() {
+            document.getElementById('infoMessage').classList.add('hidden');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('hidden', !show);
+            const buttons = document.querySelectorAll('button[type="submit"]');
+            buttons.forEach(btn => btn.disabled = show);
+        }
+    </script>
+</body>
+</html>
