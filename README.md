@@ -44,7 +44,7 @@ curl -X POST http://localhost:8000/start \
   -H "Content-Type: application/json" \
   -d '{"name":"Иван","position":"Python Dev","grade":"Junior","experience":"3 месяца"}'
 
-# Ответ на вопрос (подставьте свой session_id из ответа, который получили после отправки первого запроса!!!)
+# Ответ на вопрос (подставьте свой session_id из ответа, который получили после отправки первого запроса!!!) Все ваши ответы в интервью будут выглядеть именно так:
 curl -X POST http://localhost:8000/answer \
   -H "Content-Type: application/json" \
   -d '{"session_id":"<session_id>","answer":"мой ответ"}'
