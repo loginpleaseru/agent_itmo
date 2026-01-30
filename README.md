@@ -49,3 +49,5 @@ curl -X POST http://localhost:8000/answer \
   -H "Content-Type: application/json" \
   -d '{"session_id":"<session_id>","answer":"мой ответ"}'
 ```
+
+##Финальный файл сохраняется в interview_logs/
